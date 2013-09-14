@@ -35,6 +35,7 @@ if not getattr(settings, 'DJAILS_USER_MODEL_BAN_SERVICE_CACHE_PROPERTY', None):
 if not getattr(settings, 'DJAILS_SPECIAL_USER_CREATE_FUNCTION', None):
     settings.DJAILS_SPECIAL_USER_CREATE_FUNCTION = create_special_user
 
+
 #This code extends the current User model to provide the ban service.
 def ban_service(self):
     if not hasattr(self, settings.DJAILS_USER_MODEL_BAN_SERVICE_CACHE_PROPERTY):
