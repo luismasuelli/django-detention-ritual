@@ -18,7 +18,7 @@ create_user = settings.DJAILS_SPECIAL_USER_CREATE_FUNCTION
 @receiver(post_syncdb, sender=models, dispatch_uid='group:ban', weak=False)
 def setup_ban_users(**kwargs):
     """
-
+    Setup the special users required for the ban feature.
     """
 
     if not issubclass(User, AbstractBaseUser):
