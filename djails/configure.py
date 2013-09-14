@@ -6,7 +6,7 @@ __author__ = 'Luis'
 User = get_user_model()
 
 
-def create_special_user(username):
+def create_special_user(model_class, username):
     """
     This method is the default for creating a user and will invoke the model manager's
     get_or_create method. Defining a custom manager for a model with different fields,
@@ -18,7 +18,7 @@ def create_special_user(username):
 
     Side note: yes, i know i could use a lambda but i wanted to doc this function.
     """
-    return User.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@special.com'})
+    return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@special.com'})
 
 
 if not settings.configured:

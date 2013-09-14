@@ -24,6 +24,6 @@ def setup_ban_users(**kwargs):
     if not issubclass(User, AbstractBaseUser):
         raise ImproperlyConfigured("Class %s (AUTH_USER_MODEL) does not specify a valid User class" % User.__name__)
     for s in models.SPECIAL_USERS:
-        user, s = create_user(s)
+        user, s = create_user(User, s)
         user.set_unusable_password()
         user.save()
