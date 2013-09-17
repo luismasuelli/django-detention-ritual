@@ -3,9 +3,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseForbidden
+
 __author__ = 'Luis'
-
-
 ban_param = settings.DJAILS_CURRENT_BAN_VIEW_PARAMETER_NAME
 
 
