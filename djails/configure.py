@@ -28,12 +28,14 @@ else:
 
 #We assure those properties exist since we need both a model method and a cache
 #    property to check user bans.
-if not getattr(settings, 'DJAILS_USER_MODEL_BAN_SERVICE_PROPERTY', None):
+if not getattr(settings, 'DJAILS_USER_MODEL_BAN_SERVICE_PROPERTY', ''):
     settings.DJAILS_USER_MODEL_BAN_SERVICE_PROPERTY = 'djails_service'
-if not getattr(settings, 'DJAILS_USER_MODEL_BAN_SERVICE_CACHE_PROPERTY', None):
+if not getattr(settings, 'DJAILS_USER_MODEL_BAN_SERVICE_CACHE_PROPERTY', ''):
     settings.DJAILS_USER_MODEL_BAN_SERVICE_CACHE_PROPERTY = '_' + settings.DJAILS_USER_MODEL_BAN_SERVICE_PROPERTY
 if not getattr(settings, 'DJAILS_SPECIAL_USER_CREATE_FUNCTION', None):
     settings.DJAILS_SPECIAL_USER_CREATE_FUNCTION = create_special_user
+if not getattr(settings, 'DJAILS_CURRENT_BAN_VIEW_PARAMETER_NAME', ''):
+    settings.DJAILS_CURRENT_BAN_VIEW_PARAMETER_NAME = 'current_ban'
 
 
 #This code extends the current User model to provide the ban service.
