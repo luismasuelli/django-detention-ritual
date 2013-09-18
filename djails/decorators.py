@@ -25,7 +25,7 @@ def _ban(request):
         return service.my_current_ban()
 
 
-def good_child_decorator(on_banned, on_anonymous=None):
+def ifban_decorator(on_banned, on_anonymous=None):
     """
     Decorator that tests if the current user is banned or not.
     Two params are accepted by this decorator:
@@ -54,7 +54,7 @@ def good_child_decorator(on_banned, on_anonymous=None):
     return _decorator
 
 
-def good_child_or_redirect(target, on_anonymous=None):
+def ifban_redirect(target, on_anonymous=None):
     """
     Implements the previos decorator with a simple "redirect" function.
 
@@ -69,13 +69,13 @@ def good_child_or_redirect(target, on_anonymous=None):
             result = reverse(target[0], args=target[1])
     else:
         result = target
-    return good_child_decorator(
+    return ifban_decorator(
         lambda req, view, *args, **kwargs: HttpResponseRedirect(result),
         on_anonymous
     )
 
 
-def good_child_or_forbid(content_func=lambda r, v, *a, **ka: {'content': '', 'content_type': 'text/plain'}, on_anonymous=None):
+def ifban_forbid(content_func=lambda r, v, *a, **ka: {'content': '', 'content_type': 'text/plain'}, on_anonymous=None):
     """
     Implements the generic decorator with a (perhaps elaborated) "forbidden" function.
 
@@ -83,13 +83,13 @@ def good_child_or_forbid(content_func=lambda r, v, *a, **ka: {'content': '', 'co
         a dict with those keys (both keys should be included).
     """
 
-    return good_child_decorator(
+    return ifban_decorator(
         lambda req, view, *args, **kwargs: HttpResponseForbidden(**content_func(req, view, *args, **kwargs)),
         on_anonymous
     )
 
 
-def good_child_or_chain(target_view, on_anonymous=None):
+def ifban_chain(target_view, on_anonymous=None):
     """
     Implements the generic decorator by giving an alternative url to render when the user is banned.
 
@@ -97,7 +97,7 @@ def good_child_or_chain(target_view, on_anonymous=None):
         The view must accept the request, the original view_function, *positionals, and **named.
     """
 
-    return good_child_decorator(
+    return ifban_decorator(
         target_view,
         on_anonymous
     )
