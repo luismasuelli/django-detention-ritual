@@ -1,11 +1,8 @@
 __author__ = 'Luis'
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.auth.models import Group, Permission
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_syncdb
-from django.utils.timezone import now as tznow
 from django.dispatch import receiver
 from django.conf import settings
 import models
