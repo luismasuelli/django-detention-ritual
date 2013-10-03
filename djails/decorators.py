@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden
 
 __author__ = 'Luis'
 ban_param = settings.DJAILS_CURRENT_BAN_VIEW_PARAMETER_NAME
+ban_property = settings.DJAILS_USER_MODEL_BAN_SERVICE_PROPERTY
 
 
 def _ban(request):
@@ -20,12 +21,12 @@ def _ban(request):
         #the auth application is not installed or the user is not authenticated
         return False
     #get the bound method from the user and call it. if the method does not exist, True value is returned
-    service = getattr(request.user, settings.DJAILS_USER_MODEL_BAN_SERVICE_PROPERTY, None)
+    service = getattr(request.user, ban_property, None)
     if service:
         return service.my_current_ban()
 
 
-def ifban_decorator(on_banned, on_anonymous=None):
+def ifban(on_banned, on_anonymous=None):
     """
     Decorator that tests if the current user is banned or not.
     Two params are accepted by this decorator:
@@ -54,27 +55,6 @@ def ifban_decorator(on_banned, on_anonymous=None):
     return _decorator
 
 
-def ifban_redirect(target, on_anonymous=None):
-    """
-    Implements the previos decorator with a simple "redirect" function.
-
-    The target can be a tuple (url_name, dict|tuple) - the target will be reversed.
-        Otherwise, it will not be reolved.
-    """
-
-    if isinstance(target, tuple):
-        if isinstance(target[1], dict):
-            result = reverse(target[0], kwargs=target[1])
-        else:
-            result = reverse(target[0], args=target[1])
-    else:
-        result = target
-    return ifban_decorator(
-        lambda req, view, *args, **kwargs: HttpResponseRedirect(result),
-        on_anonymous
-    )
-
-
 def ifban_forbid(content_func=lambda r, v, *a, **ka: {'content': '', 'content_type': 'text/plain'}, on_anonymous=None):
     """
     Implements the generic decorator with a (perhaps elaborated) "forbidden" function.
@@ -83,21 +63,7 @@ def ifban_forbid(content_func=lambda r, v, *a, **ka: {'content': '', 'content_ty
         a dict with those keys (both keys should be included).
     """
 
-    return ifban_decorator(
+    return ifban(
         lambda req, view, *args, **kwargs: HttpResponseForbidden(**content_func(req, view, *args, **kwargs)),
-        on_anonymous
-    )
-
-
-def ifban_chain(target_view, on_anonymous=None):
-    """
-    Implements the generic decorator by giving an alternative url to render when the user is banned.
-
-    If the user is banned, the target_view is rendered with the same parameters.
-        The view must accept the request, the original view_function, *positionals, and **named.
-    """
-
-    return ifban_decorator(
-        target_view,
         on_anonymous
     )
