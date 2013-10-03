@@ -1,3 +1,7 @@
+from django import VERSION
+from django.core.exceptions import ImproperlyConfigured
+if VERSION[:2] < (1, 5):
+    raise ImproperlyConfigured("Django 1.5 is required for djails application to work")
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import UserManager
@@ -18,7 +22,7 @@ def create_special_user(model_class, username):
 
     Side note: yes, i know i could use a lambda but i wanted to doc this function.
     """
-    return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@special.com'})
+    return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'})
 
 
 if not settings.configured:
