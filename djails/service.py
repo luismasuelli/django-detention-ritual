@@ -22,7 +22,6 @@ class DjailsService(object):
 
     def __init__(self, user):
         self.__user = user
-        self.__cache = False
 
     @staticmethod
     def _is_staff(user):
