@@ -1,62 +1,62 @@
 # Create your views here.
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from djails import decorators
+from django.shortcuts import render_to_response
+from django.template import loader
 
 
-def anonymous(request, view, *args, **kwargs):
-    """
-    The anonymous callback function must be accepted as the parameter.
-    """
-    pass
+class ifban_sample(decorators.ifban):
+
+    def on_banned(self, request, view, *args, **kwargs):
+        return render_to_response('example/banned-details.html', {'ban': kwargs['current_ban']})
+
+    def on_anonymous(self, request, view, *args, **kwargs):
+        return noauth_view(request)
 
 
-def content(request, function, current_ban, *args, **kwargs):
-    """
-    This content function must accept kwargs or current_ban, or both.
-    This content must have a second positional parameter (the intercepted view).
-    """
-    return {'content': '<html><head>You suck</head><body>You really suck!</body></html>', 'content_type': 'text/html'}
+class ifban_redirect_sample(decorators.ifban_redirect):
+
+    def get_redirection(self, request, view, *args, **kwargs):
+        return reverse('banned-target'), False
+
+    def on_anonymous(self, request, view, *args, **kwargs):
+        return HttpResponseRedirect(reverse('noauth-target'))
 
 
-def redirected(request):
-    """
-    This content is independant.
-    """
-    pass
+class ifban_forbid_sample(decorators.ifban_forbid):
+
+    def get_content(self, request, view, *args, **kwargs):
+        loader.render_to_string('example/forbidden.html'), 'text/html'
+
+    def on_anonymous(self, request, view, *args, **kwargs):
+        return HttpResponseRedirect(reverse('noauth-target'))
 
 
-def chained(request, func, current_ban, *args, **kwargs):
-    """
-    This chained view must accept the request and a current_ban named parameter.
-    This content must have a second positional parameter (the intercepted view).
-    """
-    return func(request, current_ban)
+def banned_view(request):
+    return render_to_response('example/banned.html')
 
 
-@decorators.ifban_forbid(content_func=content)
-def test_forbid(request):
-    pass
+def noauth_view(request):
+    return render_to_response('example/noauth.html')
 
 
-@decorators.ifban_forbid(content_func=content, on_anonymous=anonymous)
-def test_forbid_anon(request):
-    pass
+@ifban_forbid_sample(False)
+def view1(request):
+    return render_to_response('example/view.html', {'x': 1})
 
 
-@decorators.ifban_chain(target_view=chained)
-def test_chain(request, c_ban=None):
-    pass
+@ifban_redirect_sample(False)
+def view2(request):
+    return render_to_response('example/view.html', {'x': 2})
 
 
-@decorators.ifban_chain(target_view=chained, on_anonymous=anonymous)
-def test_chain_anon(request, c_ban=None):
-    pass
+@ifban_sample(False)
+def view3(request):
+    return render_to_response('example/view.html', {'x': 3})
 
 
-@decorators.ifban_redirect(target='redirect')
-def test_chain_redirect(request):
-    pass
-
-
-@decorators.ifban_redirect(target='redirect', on_anonymous=anonymous)
-def test_chain_redirect(request):
-    pass
+@login_required
+def profile(request):
+    return render_to_response('example/profile.html', {'user': request.user})
