@@ -1,5 +1,6 @@
 # Django settings for Djails project.
 import os
+from django.core.urlresolvers import reverse
 
 ABSOLUTE_PATH = os.path.join(os.path.dirname(__file__), '..').replace('\\', '/')
 
@@ -124,6 +125,9 @@ INSTALLED_APPS = (
     'djails',
     'example'
 )
+
+LOGIN_REDIRECT_URL = reverse('profile')
+LOGIN_URL = reverse('login')
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
