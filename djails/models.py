@@ -104,7 +104,7 @@ class DeadBanMixin(ActiveBanMixIn):
     )
 
     death_on = models.DateTimeField(null=False, editable=False, db_index=True, verbose_name=_("Termination time"))
-    death_by = models.ForeignKey(User, null=False, editable=False, verbose_name=_("Terminator"))
+    death_by = models.ForeignKey(User, related_name="+", null=False, editable=False, verbose_name=_("Terminator"))
     death_reason = models.TextField(null=False, max_length=1024, verbose_name=_("Termination reason"))
     death_type = models.CharField(null=False, max_length=1, choices=DEATH_CHOICES, verbose_name=_("Termination type"))
 
@@ -130,3 +130,5 @@ class DeadBan(BanData, DeadBanMixin):
     class Meta:
         verbose_name = _("Dead Ban")
         verbose_name_plural = _("Dead Bans")
+
+
