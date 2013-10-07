@@ -1,13 +1,15 @@
 from functools import wraps
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponseForbidden
-from django.http.response import HttpResponse, HttpResponsePermanentRedirect
+from django.http import HttpResponseForbidden
+from django.shortcuts import redirect
+import configure
 
 __author__ = 'Luis'
-ban_param = settings.DJAILS_CURRENT_BAN_VIEW_PARAMETER_NAME
-ban_property = settings.DJAILS_USER_MODEL_BAN_SERVICE_PROPERTY
+ban_param = configure.djails_ban_param
+ban_property = configure.djails_property
+
+
+def istuple(value, n):
+    return isinstance(value, tuple) and len(value) == n
 
 
 class ifban(object):
@@ -59,7 +61,7 @@ class ifban(object):
             return service.my_current_ban()
         else:
             raise RuntimeError(
-                "The specified ban service property '%s' cannot be accesed for a '%s' object!" %
+                "An error occurred trying to access property '%s' from an '%s' object!" %
                 (ban_property, request.user.__class__.__name__)
             )
 
@@ -96,7 +98,15 @@ class ifban_forbid(ifban):
         """
         You should not redefine this method. This is a convenient method defined for you in this class.
         """
-        content, content_type = self.get_content(request, view, *args, **kwargs)
+        result = self.get_content(request, view, *args, **kwargs)
+        if istuple(result, 2):
+            content, content_type = result
+        elif istuple(result, 1):
+            content, content_type = result + ('text/plain',)
+        elif isinstance(result, basestring):
+            content, content_type = result, 'text/plain'
+        else:
+            raise TypeError("Response content must be a 1 or 2 items tuple, or a string type value")
         return HttpResponseForbidden(content=content, content_type=content_type)
 
     def get_content(self, request, view, *args, **kwargs):
@@ -114,11 +124,16 @@ class ifban_redirect(ifban):
         """
         You should not redefine this method. This is a convenient method defined for you in this class.
         """
-        target, permanent = self.get_redirection(request, view, *args, **kwargs)
-        if permanent:
-            return HttpResponsePermanentRedirect(target)
+        result = self.get_redirection(request, view, *args, **kwargs)
+        if istuple(result, 2):
+            target, permanent = result
+        elif istuple(result, 1):
+            target, permanent = result + (False,)
+        elif isinstance(result, basestring):
+            target, permanent = result, False
         else:
-            return HttpResponseRedirect(target)
+            raise TypeError("Redirection target must be a 1 or 2 items tuple, or a string type value")
+        return redirect(target, permanent=permanent)
 
     def get_redirection(self, request, view, *args, **kwargs):
         """
