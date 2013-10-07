@@ -68,8 +68,8 @@ class BanData(models.Model):
     dictation_on = models.DateTimeField(null=False, editable=False, db_index=True, verbose_name=_("Ban creation date"))
     dictation_reason = models.TextField(null=False, max_length=1024, verbose_name=_("Ban reason"))
     duration = models.CharField(null=False, max_length=255, validators=[clean_duration], verbose_name=_("Ban duration"))
-    dictated_to = models.ForeignKey(User, related_name="criminal_history", null=False, editable=False, verbose_name=_("Ban target"))
-    dictated_by = models.ForeignKey(User, related_name="official_history", null=False, editable=False,verbose_name=_("Ban dictator"))
+    dictated_to = models.ForeignKey(User, related_name="+", null=False, editable=False, verbose_name=_("Ban target"))
+    dictated_by = models.ForeignKey(User, related_name="+", null=False, editable=False,verbose_name=_("Ban dictator"))
 
     def copy_from(self, ban):
         self.dictation_on = ban.dictation_on
