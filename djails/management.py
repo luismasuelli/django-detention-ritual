@@ -9,7 +9,6 @@ import models
 
 
 User = get_user_model()
-create_user = configure.djails_creator
 
 
 @receiver(post_syncdb, sender=models, dispatch_uid='group:ban', weak=False)
@@ -21,6 +20,6 @@ def setup_ban_users(**kwargs):
     if not issubclass(User, AbstractBaseUser):
         raise ImproperlyConfigured("Class %s (AUTH_USER_MODEL) does not specify a valid User class" % User.__name__)
     for s in models.SPECIAL_USERS:
-        user, s = create_user(User, s)
+        user, saved = configure.create_special_user(User, s)
         user.set_unusable_password()
         user.save()
