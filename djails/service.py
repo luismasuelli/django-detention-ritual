@@ -119,3 +119,7 @@ class DjailsService(object):
             raise DjailsServiceError(_(u"An internal error occurred when forgiving a ban "
                                     u"- Contact the administrator if this still happens"),
                                     "UNKNOWN")
+
+    @property
+    def user(self):
+        return self.__user
