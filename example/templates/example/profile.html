@@ -5,12 +5,13 @@
 </head>
 <body>
     Hello {{ user.username }}. This is your profile. Your current state is:
-    {% if user.djails_service.my_current_ban %}Banned{% else %}Not Banned{% endif %}.<br/>
+    {% if service.my_current_ban %}Banned{% else %}Not Banned{% endif %}.<br/>
     Enjoy the site.
     <ul>
         <li><a href="{% url 'view-1' %}">Forbid sample</a></li>
         <li><a href="{% url 'view-2' %}">Redirect sample</a></li>
         <li><a href="{% url 'view-3' %}">Alt. render sample</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
     </ul>
 </body>
 </html>

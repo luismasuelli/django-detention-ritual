@@ -2,7 +2,7 @@
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from djails import decorators
+from djails import decorators, service
 from django.shortcuts import render_to_response
 from django.template import loader
 
@@ -28,7 +28,7 @@ class ifban_redirect_sample(decorators.ifban_redirect):
 class ifban_forbid_sample(decorators.ifban_forbid):
 
     def get_content(self, request, view, *args, **kwargs):
-        loader.render_to_string('example/forbidden.html'), 'text/html'
+        return loader.render_to_string('example/forbidden.html'), 'text/html'
 
     def on_anonymous(self, request, view, *args, **kwargs):
         return HttpResponseRedirect(reverse('noauth-target'))
@@ -59,4 +59,5 @@ def view3(request):
 
 @login_required
 def profile(request):
-    return render_to_response('example/profile.html', {'user': request.user})
+    return render_to_response('example/profile.html',
+                              {'user': request.user, 'service': service.DjailsService(request.user)})
