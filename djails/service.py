@@ -1,5 +1,5 @@
 from djails.models import ActiveBan
-import utils
+import core
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now as tznow
 from django.utils.translation import ugettext_lazy as _
@@ -50,7 +50,7 @@ class DjailsService(object):
         if not self.is_banneable():
             return False
         else:
-            return utils.check_ban_for(self.__user)
+            return core.check_ban_for(self.__user)
 
     def _check_can_ban(self, target):
         """
@@ -72,9 +72,9 @@ class DjailsService(object):
         """
 
         self._check_can_ban(target)
-        utils.clean_duration(duration)
+        core.clean_duration(duration)
         try:
-            return utils.add_ban(self.__user, target, duration, reason)
+            return core.add_ban(self.__user, target, duration, reason)
         except Exception as e:
             raise DjailsServiceError(_(u"An internal error occurred when creating a ban "
                                     u"- Contact the administrator if this still happens"),
@@ -101,7 +101,7 @@ class DjailsService(object):
 
         self._check_can_terminate(ban)
         try:
-            return utils.revert_ban(self.__user, ban, tznow(), reason)
+            return core.revert_ban(self.__user, ban, tznow(), reason)
         except Exception as e:
             raise DjailsServiceError(_(u"An internal error occurred when reverting a ban "
                                     u"- Contact the administrator if this still happens"),
@@ -114,7 +114,7 @@ class DjailsService(object):
 
         self._check_can_terminate(ban)
         try:
-            return utils.forgive_ban(self.__user, ban, tznow(), reason)
+            return core.forgive_ban(self.__user, ban, tznow(), reason)
         except Exception as e:
             raise DjailsServiceError(_(u"An internal error occurred when forgiving a ban "
                                     u"- Contact the administrator if this still happens"),
