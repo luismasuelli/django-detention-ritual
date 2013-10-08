@@ -1,11 +1,9 @@
 from functools import wraps
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
-import configure
+import service
 
 __author__ = 'Luis'
-ban_param = configure.djails_ban_param
-ban_property = configure.djails_property
 
 
 def istuple(value, n):
@@ -14,8 +12,9 @@ def istuple(value, n):
 
 class ifban(object):
 
-    def __init__(self, allow_anonymous):
+    def __init__(self, allow_anonymous, param_name='current_ban'):
         self.allow_anonymous = allow_anonymous
+        self.param_name=param_name
 
     def on_anonymous(self, request, view, *args, **kwargs):
         """
@@ -55,15 +54,7 @@ class ifban(object):
             #the auth application is not installed or the user is not authenticated
             return False
         #get the service from the user and call it.
-        #if it does not exist, that's a strange error to worry about.
-        service = getattr(request.user, ban_property, None)
-        if service:
-            return service.my_current_ban()
-        else:
-            raise RuntimeError(
-                "An error occurred trying to access property '%s' from an '%s' object!" %
-                (ban_property, request.user.__class__.__name__)
-            )
+        return service.DjailsService(request.user).my_current_ban()
 
     def _dispatch(self, view, args, kwargs):
         """
@@ -79,7 +70,7 @@ class ifban(object):
         elif not result:
             return view(*args, **kwargs)
         else:
-            kwargs[ban_param] = result
+            kwargs[self.param_name] = result
             return self.on_banned(args[0], view, *args[1:], **kwargs)
 
     def __call__(self, view):
