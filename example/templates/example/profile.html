@@ -5,7 +5,7 @@
 </head>
 <body>
     Hello {{ user.username }}. This is your profile. Your current state is:
-    {% if service.my_current_ban %}Banned{% else %}Not Banned{% endif %}.<br/>
+    {% if ban %}Banned{% else %}Not Banned{% endif %}.<br/>
     Enjoy the site.
     <ul>
         <li><a href="{% url 'view-1' %}">Forbid sample</a></li>

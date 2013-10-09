@@ -5,6 +5,7 @@ from django.http import HttpResponseRedirect
 from djails import decorators, service
 from django.shortcuts import render_to_response
 from django.template import loader
+from djails.decorators import ifban_same
 
 
 class ifban_sample(decorators.ifban):
@@ -58,6 +59,9 @@ def view3(request):
 
 
 @login_required
-def profile(request):
+@ifban_same(allow_anonymous=True)
+def profile(request, *args, **kwargs):
     return render_to_response('example/profile.html',
-                              {'user': request.user, 'service': service.DjailsService(request.user)})
+                              {'user': request.user,
+                               'service': kwargs.get('service'),
+                               'ban': kwargs.get('current_ban')})
