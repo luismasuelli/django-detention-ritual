@@ -12,9 +12,10 @@ def istuple(value, n):
 
 class ifban(object):
 
-    def __init__(self, allow_anonymous, param_name='current_ban'):
+    def __init__(self, allow_anonymous, param_name='current_ban', service_attr_name='service'):
         self.allow_anonymous = allow_anonymous
-        self.param_name=param_name
+        self.param_name = param_name
+        self.service_attr_name = service_attr_name
 
     def on_anonymous(self, request, view, *args, **kwargs):
         """
@@ -52,9 +53,10 @@ class ifban(object):
         """
         if not hasattr(request, 'user') or not request.user.is_authenticated():
             #the auth application is not installed or the user is not authenticated
-            return False
+            return False, None
         #get the service from the user and call it.
-        return service.DjailsService(request.user).my_current_ban()
+        service_ = service.DjailsService(request.user)
+        return service_.my_current_ban(), service_
 
     def _dispatch(self, view, args, kwargs):
         """
@@ -64,12 +66,14 @@ class ifban(object):
             3. User is not banned: trigger view.
             4. User is banned: trigger on_banned.
         """
-        result = self._get_ban(args[0])
+        result, service_ = self._get_ban(args[0])
         if result is False and not self.allow_anonymous:
             return self.on_anonymous(args[0], view, *args[1:], **kwargs)
         elif not result:
+            setattr(args[0], self.service_attr_name, service_)
             return view(*args, **kwargs)
         else:
+            setattr(args[0], self.service_attr_name, service_)
             kwargs[self.param_name] = result
             return self.on_banned(args[0], view, *args[1:], **kwargs)
 
@@ -133,3 +137,14 @@ class ifban_redirect(ifban):
         (url, boolean) tuple, where True in the boolean means a permanent (301) redirection
         """
         return '/', False
+
+
+class ifban_same(ifban):
+
+    def on_banned(self, request, view, *args, **kwargs):
+        """
+        Calls the same view for both banned or unbanned user.
+        The request will have an attribute as defined in the constructor for the service name.
+        Your view must handle a ban parameter as defined in the decorator's name.
+        """
+        return view(request, *args, **kwargs)
