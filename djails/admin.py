@@ -5,7 +5,7 @@ from models import ActiveBan, DeadBan
 
 class ActiveBanAdmin(ModelAdmin):
 
-    list_display = ['dictated_to', 'dictated_by', 'duration',
+    list_display = ['id', 'dictated_to', 'dictated_by', 'duration',
                     'dictation_reason', 'dictation_on', 'start_on']
 
     def has_add_permission(self, request):
@@ -17,7 +17,7 @@ class ActiveBanAdmin(ModelAdmin):
 
 class DeadBanAdmin(ModelAdmin):
 
-    list_display = ['dictated_to', 'dictated_by', 'duration',
+    list_display = ['id', 'dictated_to', 'dictated_by', 'duration',
                     'dictation_reason', 'dictation_on', 'start_on',
                     'death_on', 'death_by', 'death_type', 'death_reason']
 
