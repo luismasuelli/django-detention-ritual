@@ -112,8 +112,8 @@ class DjailsService(object):
             return ban
         except Exception as e:
             raise DjailsServiceError(_(u"An internal error occurred when reverting a ban "
-                                    u"- Contact the administrator if this still happens"),
-                                    "UNKNOWN")
+                                     u"- Contact the administrator if this still happens"),
+                                     "UNKNOWN")
 
     def forgive(self, ban, reason):
         """
