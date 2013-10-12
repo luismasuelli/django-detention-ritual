@@ -1,5 +1,6 @@
 from djails.models import ActiveBan
 import core
+import signals
 from django.contrib.auth import get_user_model
 from django.utils.timezone import now as tznow
 from django.utils.translation import ugettext_lazy as _
@@ -50,7 +51,10 @@ class DjailsService(object):
         if not self.is_banneable():
             return False
         else:
-            return core.check_ban_for(self.__user)
+            current, terminated = core.check_ban_for(self.__user)
+            if len(terminated):
+                signals.bans_expired.send_robust(self.__user, current=current, ban_list=terminated)
+            return current
 
     def _check_can_ban(self, target):
         """
@@ -74,7 +78,9 @@ class DjailsService(object):
         self._check_can_ban(target)
         core.clean_duration(duration)
         try:
-            return core.add_ban(self.__user, target, duration, reason)
+            ban = core.add_ban(self.__user, target, duration, reason)
+            signals.ban_applied.send_robust(target, new_ban=ban)
+            return ban
         except Exception as e:
             raise DjailsServiceError(_(u"An internal error occurred when creating a ban "
                                     u"- Contact the administrator if this still happens"),
@@ -101,7 +107,9 @@ class DjailsService(object):
 
         self._check_can_terminate(ban)
         try:
-            return core.revert_ban(self.__user, ban, tznow(), reason)
+            ban = core.revert_ban(self.__user, ban, tznow(), reason)
+            signals.ban_terminated.send_robust(ban.dictated_to, ban=ban)
+            return ban
         except Exception as e:
             raise DjailsServiceError(_(u"An internal error occurred when reverting a ban "
                                     u"- Contact the administrator if this still happens"),
@@ -114,11 +122,13 @@ class DjailsService(object):
 
         self._check_can_terminate(ban)
         try:
-            return core.forgive_ban(self.__user, ban, tznow(), reason)
+            ban = core.forgive_ban(self.__user, ban, tznow(), reason)
+            signals.ban_terminated.send_robust(ban.dictated_to, ban=ban)
+            return ban
         except Exception as e:
             raise DjailsServiceError(_(u"An internal error occurred when forgiving a ban "
-                                    u"- Contact the administrator if this still happens"),
-                                    "UNKNOWN")
+                                     u"- Contact the administrator if this still happens"),
+                                     "UNKNOWN")
 
     @property
     def user(self):

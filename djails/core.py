@@ -67,25 +67,35 @@ def _check_ban_dictation_on_before(current_ban, now_, checker):
     return False
 
 
-def _check_ban_start_on_before(current_ban, now_, checker):
+def _check_ban_start_on_before(current_ban, now_, checker, terminated_list):
     if now_ < current_ban.start_on:
-        error_ban(checker, current_ban,
-                  now_, "** start-date-in-future[%s] **" %
-                        (unicode(current_ban.start_on),))
+        terminated_list.append(
+            error_ban(
+                checker,
+                current_ban,
+                now_,
+                "** start-date-in-future[%s] **" % (unicode(current_ban.start_on),)
+            )
+        )
         return True
     return False
 
 
-def _check_ban_duration(current_ban, now_, checker):
+def _check_ban_duration(current_ban, now_, checker, terminated_list):
     try:
         #Check if this ban must end or not.
         return clean_duration(current_ban.duration)
     except ValidationError:
         #Error due to a malformed duration string. This ban must
         #    be marked for termination for that reason.
-        error_ban(checker, current_ban,
-                  now_, "** malformed-duration[%s] **" %
-                        (current_ban.duration,))
+        terminated_list.append(
+            error_ban(
+                checker,
+                current_ban,
+                now_,
+                "** malformed-duration[%s] **" % (current_ban.duration,)
+            )
+        )
         return False
 
 
@@ -113,13 +123,16 @@ def check_ban_for(banned):
         these checks in the admin are as straightforward as checking
         this in a method (perhaps using this function as a method in
         a user model).
+
+    Returns the (current ban, expired ones) tuple.
     """
 
     expirer, checker = _special_bancheck_users()
     now_ = tznow()
+    terminated_bans = []
     _check_dictation_date = lambda b: _check_ban_dictation_on_before(b, now_, checker)
-    _check_start_date = lambda b: _check_ban_start_on_before(b, now_, checker)
-    _check_duration = lambda b: _check_ban_duration(b, now_, checker)
+    _check_start_date = lambda b: _check_ban_start_on_before(b, now_, checker, terminated_bans)
+    _check_duration = lambda b: _check_ban_duration(b, now_, checker, terminated_bans)
     _active = lambda u: ActiveBan.objects.filter(dictated_to=u)
     _active_started = lambda u: _active(u).filter(start_on__isnull=False)
     _expected_end = lambda d, i: d + i if i is not None else None
@@ -131,7 +144,7 @@ def check_ban_for(banned):
         #    select_for_update() before the count().
         if not _active(banned).select_for_update().count():
             #User is not banned because it has not any active ban.
-            return None
+            return None, terminated_bans
 
         #Ensure at least one element has a start_on date.
         _ensure_ban_with_start_date(banned, previous_start_on)
@@ -152,10 +165,10 @@ def check_ban_for(banned):
         if expected_end is None or now_ < expected_end:
             #User is banned because it has not an ending limit.
             #OR User is banned because it has a date beyond the current date.
-            return current_ban
+            return current_ban, terminated_bans
         elif now_ >= expected_end:
             #This ban must be marked as expired.
-            expire_ban(expirer, current_ban, expected_end)
+            terminated_bans.append(expire_ban(expirer, current_ban, expected_end))
             #AND we must simulate the real-time expiration by
             #    assigning the last end as the new start.
             previous_start_on = expected_end

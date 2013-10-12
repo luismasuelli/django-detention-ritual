@@ -2,10 +2,12 @@
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from djails import decorators, service
+from djails import decorators, service, signals
 from django.shortcuts import render_to_response
 from django.template import loader
 from djails.decorators import ifban_same
+from django.dispatch import receiver
+from django.core import serializers
 
 
 class ifban_sample(decorators.ifban):
@@ -65,3 +67,25 @@ def profile(request, *args, **kwargs):
                               {'user': request.user,
                                'service': kwargs.get('service'),
                                'ban': kwargs.get('current_ban')})
+
+
+@receiver(signals.ban_applied, dispatch_uid="example.ban_applied")
+def user_ban_applied(sender, **kwargs):
+    ban = kwargs['new_ban']
+    with open("bans.log", "a") as f:
+        f.write("created ban: %s" % serializers.serialize("json", [ban]))
+
+
+@receiver(signals.ban_terminated, dispatch_uid="example.ban_terminated")
+def user_ban_terminated(sender, **kwargs):
+    ban = kwargs['ban']
+    with open("bans.log", "a") as f:
+        f.write("terminated ban: %s" % serializers.serialize("json", [ban]))
+
+
+@receiver(signals.bans_expired, dispatch_uid="example.unbanned")
+def user_unbanned(sender, **kwargs):
+    ban = kwargs['current_ban']
+    bans = kwargs['ban_list']
+    with open("bans.log", "a") as f:
+        f.write("user unbanned: %s. forgiven bans: %s" % (sender.username, serializers.serialize("json", bans)))
