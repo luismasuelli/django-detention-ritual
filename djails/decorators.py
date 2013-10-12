@@ -50,6 +50,7 @@ class ifban(object):
             None: there's no ban for the logged user (i.e. it's not banned).
             <ban>: there's a ban for the logged user (i.e. it's banned).
             False: there's no user logged in or the request has no "user" attribute (i.e. "auth" app isn't installed).
+        returns a tuple with the result and the service instance.
         """
         if not hasattr(request, 'user') or not request.user.is_authenticated():
             #the auth application is not installed or the user is not authenticated
