@@ -12,33 +12,32 @@ def istuple(value, n):
 
 class ifban(object):
 
-    def __init__(self, allow_anonymous, param_name='current_ban', service_attr_name='service'):
+    def __init__(self, allow_anonymous, ban_attr_name='current_ban', service_attr_name='service', view_attr_name='view'):
         self.allow_anonymous = allow_anonymous
-        self.param_name = param_name
+        self.ban_attr_name = ban_attr_name
         self.service_attr_name = service_attr_name
+        self.view_attr_name = view_attr_name
 
-    def on_anonymous(self, request, view, *args, **kwargs):
+    def on_anonymous(self, request, *args, **kwargs):
         """
         This method must be defined to define what to do if a request comes to this view and no user is logged in or
         the "auth" app is not installed. The following params must be specified:
-        1. 2 (two) positional parameters.
-           a. the current request.
-           b. the original wrapped view.
+        1. 1 (one) positional parameter: request.
+           request.<view> will hold the wrapped view. The attribute name is determined in this decorator constructor.
         2. *args and **kwargs as they will serve to generic purposes.
 
         It must return a response as any view would do.
         """
         raise NotImplementedError()
 
-    def on_banned(self, request, view, *args, **kwargs):
+    def on_banned(self, request, *args, **kwargs):
         """
         What to do when the user is banned. The following params must be specified:
-        1. 2 (two) positional parameters.
-           a. the current request.
-           b. the original wrapped view.
-        2. *args and **kwargs as they will serve to generic purposes. Remember that in the **kwargs there will be
-           a param whose name will be the value of DJAILS_CURRENT_BAN_VIEW_PARAMETER_NAME system setting (by default
-           it will be 'current_ban') which will hold the current ban for the user.
+        1. 1 (one) positional parameter: request.
+           request.<view> will hold the wrapped view. The attribute name is determined in this decorator constructor.
+           request.<service> will hold the current user wrapper. The attribute name is determined in this decorator constructor.
+           request.<ban> will hold the current ban (or None). The attribute name is determined in this decorator constructor.
+        2. *args and **kwargs as they will serve to generic purposes.
 
         It must return a response as any view would do.
         """
@@ -69,14 +68,16 @@ class ifban(object):
         """
         result, service_ = self._get_ban(args[0])
         if result is False and not self.allow_anonymous:
-            return self.on_anonymous(args[0], view, *args[1:], **kwargs)
+            setattr(args[0], self.view_attr_name, view)
+            return self.on_anonymous(args[0], *args[1:], **kwargs)
         elif not result:
             setattr(args[0], self.service_attr_name, service_)
             return view(*args, **kwargs)
         else:
             setattr(args[0], self.service_attr_name, service_)
-            kwargs[self.param_name] = result
-            return self.on_banned(args[0], view, *args[1:], **kwargs)
+            setattr(args[0], self.ban_attr_name, result)
+            setattr(args[0], self.view_attr_name, view)
+            return self.on_banned(args[0], *args[1:], **kwargs)
 
     def __call__(self, view):
         """
@@ -90,11 +91,11 @@ class ifban(object):
 
 class ifban_forbid(ifban):
 
-    def on_banned(self, request, view, *args, **kwargs):
+    def on_banned(self, request, *args, **kwargs):
         """
         You should not redefine this method. This is a convenient method defined for you in this class.
         """
-        result = self.get_content(request, view, *args, **kwargs)
+        result = self.get_content(request, *args, **kwargs)
         if istuple(result, 2):
             content, content_type = result
         elif istuple(result, 1):
@@ -105,7 +106,7 @@ class ifban_forbid(ifban):
             raise TypeError("Response content must be a 1 or 2 items tuple, or a string type value")
         return HttpResponseForbidden(content=content, content_type=content_type)
 
-    def get_content(self, request, view, *args, **kwargs):
+    def get_content(self, request, *args, **kwargs):
         """
         Must process the request, view, and ban parameter in **kwargs (as specified in base on_banned method) to
         yield the content and content_type for the 403 response. Defaults to a void string and a 'text/plain' type
@@ -116,11 +117,11 @@ class ifban_forbid(ifban):
 
 class ifban_redirect(ifban):
 
-    def on_banned(self, request, view, *args, **kwargs):
+    def on_banned(self, request, *args, **kwargs):
         """
         You should not redefine this method. This is a convenient method defined for you in this class.
         """
-        result = self.get_redirection(request, view, *args, **kwargs)
+        result = self.get_redirection(request, *args, **kwargs)
         if istuple(result, 2):
             target, permanent = result
         elif istuple(result, 1):
@@ -131,7 +132,7 @@ class ifban_redirect(ifban):
             raise TypeError("Redirection target must be a 1 or 2 items tuple, or a string type value")
         return redirect(target, permanent=permanent)
 
-    def get_redirection(self, request, view, *args, **kwargs):
+    def get_redirection(self, request, *args, **kwargs):
         """
         Must process the request, view, and ban parameter in **kwargs (as specified in base on_banned method) to
         yield the target url AND determine if it's a 302 or 301 redirection. Defaults to '/' and False in a
@@ -142,10 +143,11 @@ class ifban_redirect(ifban):
 
 class ifban_same(ifban):
 
-    def on_banned(self, request, view, *args, **kwargs):
+    def on_banned(self, request, *args, **kwargs):
         """
+        You should not redefine this method. This is a convenient method defined for you in this class.
         Calls the same view for both banned or unbanned user.
         The request will have an attribute as defined in the constructor for the service name.
         Your view must handle a ban parameter as defined in the decorator's name.
         """
-        return view(request, *args, **kwargs)
+        return request.view(request, *args, **kwargs)
