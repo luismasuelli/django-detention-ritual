@@ -84,15 +84,17 @@ These decorators, upon anonymous user or user being banned, process an alternati
         #return a response here.
     ```
 
-5. In djails.signals there are signals that react to user banning and ban termination.
+5.  In djails.signals there are signals that react to user banning and ban termination.
 
-       #in each case, the sender will be the banned user.  
-       #  ban_applied: new_ban ()  
-       #  ban_terminated: ban (the one that was terminated by an explicit call)  
-       #  bans_expired: current_ban (if any), ban_list (expired ban list in the current call)  
-    
-       #use them with the usual @receiver decorator  
-       @receiver(signals.bans_expired, dispatch_uid="example.unbanned")  
-       def bans_expired_handler(sender, **kwargs):  
-           #... handle  
-           pass  
+    ```
+    #in each case, the sender will be the banned user.
+    #  ban_applied: new_ban (the newly created ban)
+    #  ban_terminated: ban (the one that was terminated by an explicit call)
+    #  bans_expired: current_ban (if any), ban_list (expired ban list in the current call)
+
+    #use them with the usual @receiver decorator
+    @receiver(signals.bans_expired, dispatch_uid="example.unbanned")
+    def bans_expired_handler(sender, **kwargs):
+        #... handle
+        pass
+    ```
