@@ -18,9 +18,9 @@ Instructions
   
 3. The service.DjailsService wrapper class allows you to:
 
-  * Check wether the user is banned or not.
-  * Ban another user.
-  * Forgive/Revert a ban.
+  * Check wether the user is banned or not.  
+  * Ban another user.  
+  * Forgive/Revert a ban.  
 
         klass = get_user_model()  
         admin = klass.objects.get("someUser")  
@@ -31,7 +31,7 @@ Instructions
         current_ban = client_wrapper.my_current_ban()  
         assert new_ban == current_ban, "They must match"  
         dead_ban = admin_wrapper.forgive(new_ban, "forgiving sample ban")  
-        \#admin_wrapper.revert works as well, with same parameters  
+        #admin_wrapper.revert works as well, with same parameters  
 
 4. You can wrap your views with class-based decorators that make your view behave differently depending on wether the current user in session is banned or not.  
 These decorators, upon anonymous user or user being banned, process an alternative flow to the wrapped view.  
