@@ -14,7 +14,7 @@ Instructions
         
             return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'})  
 
-It will install 3 users (currently __auto_ban__ is not used in the system).  
+        \#It will install 3 users (currently __auto_ban__ is not used in the system).  
   
 3. The service.DjailsService wrapper class allows you to:
 
