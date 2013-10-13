@@ -18,11 +18,9 @@ Instructions
   
 3. The service.DjailsService wrapper class allows you to:
 
-    * Check wether the user is banned or not.
-    * Ban another user.
-    * Forgive/Revert a ban.
-
-It's instantiated with the wrapped user as first parameter:
+  * Check wether the user is banned or not.
+  * Ban another user.
+  * Forgive/Revert a ban.
 
     klass = get_user_model()  
     admin = klass.objects.get("someUser")  
