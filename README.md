@@ -8,8 +8,7 @@ Instructions
 
 1. Install "djails" in your project (i.e. add "djails" in the INSTALLED_APPS tuple).  
   
-2. If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username.  
-The default implementation looks like:  
+2. If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username. The default implementation looks like:
 
     def create_special_user(model_class, username):  
     
