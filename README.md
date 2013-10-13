@@ -6,9 +6,9 @@ An application designed to ban users. The application is plugged and gives the c
 Instructions
 ============
 
-1. Install "djails" in your project (i.e. add "djails" in the INSTALLED_APPS tuple).  
+1.  Install "djails" in your project (i.e. add "djails" in the INSTALLED_APPS tuple).  
   
-2. If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username. The default implementation looks like:
+2.  If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username. The default implementation looks like:
 
     ```
     def create_special_user(model_class, username):
@@ -18,13 +18,13 @@ Instructions
     #It will install 3 users (currently __auto_ban__ is not used in the system).
     ```
   
-3. The service.DjailsService wrapper class allows you to:
+3.  The service.DjailsService wrapper class allows you to:
 
-        * Check wether the user is banned or not.
-        * Ban another user.
-        * Forgive/Revert a ban.
+    *   Check wether the user is banned or not.
+    *   Ban another user.
+    *   Forgive/Revert a ban.
   
-  This example is a how-to for this app:
+This example is a how-to for this app:
 
       klass = get_user_model()  
       admin = klass.objects.get("someUser")  
