@@ -18,9 +18,9 @@ Instructions
   
 3. The service.DjailsService wrapper class allows you to:
 
-  * Check wether the user is banned or not.
-  * Ban another user.
-  * Forgive/Revert a ban.
+        * Check wether the user is banned or not.
+        * Ban another user.
+        * Forgive/Revert a ban.
   
   This example is a how-to for this app:
 
