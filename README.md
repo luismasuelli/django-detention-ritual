@@ -10,17 +10,20 @@ Instructions
   
 2. If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username. The default implementation looks like:
 
-    def create_special_user(model_class, username):  
-    
-        return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'})  
+        def create_special_user(model_class, username):  
+        
+            return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'})  
 
 It will install 3 users (currently __auto_ban__ is not used in the system).  
   
-3. The service.DjailsService wrapper class allows you to:  
-    * Check wether the user is banned or not.  
-    * Ban another user.  
-    * Forgive/Revert a ban.  
-It's instantiated with the wrapped user as first parameter:  
+3. The service.DjailsService wrapper class allows you to:
+
+    * Check wether the user is banned or not.
+    * Ban another user.
+    * Forgive/Revert a ban.
+
+It's instantiated with the wrapped user as first parameter:
+
     klass = get_user_model()  
     admin = klass.objects.get("someUser")  
     admin_wrapper = service.DjailsService(admin)  
@@ -34,6 +37,7 @@ It's instantiated with the wrapped user as first parameter:
 
 4. You can wrap your views with class-based decorators that make your view behave differently depending on wether the current user in session is banned or not.  
 These decorators, upon anonymous user or user being banned, process an alternative flow to the wrapped view.  
+
     from decorators import ifban, ifban_forbid, ifban_redirect, ifban_same  
     
     \#You can subclass those decorators. You can override:  
