@@ -98,3 +98,5 @@ These decorators, upon anonymous user or user being banned, process an alternati
         #... handle
         pass
     ```
+
+6.  For a more detailed example check the example application. I know this documentation is a crap but dude I hate doc-ing and 'm not in the best mood today, so deal with it.
