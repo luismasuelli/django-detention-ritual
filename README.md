@@ -22,7 +22,7 @@ Instructions
   * Ban another user.
   * Forgive/Revert a ban.
   
-   This example is a how-to for this app:
+  This example is a how-to for this app:
 
       klass = get_user_model()  
       admin = klass.objects.get("someUser")  
