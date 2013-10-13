@@ -10,11 +10,13 @@ Instructions
   
 2. If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username. The default implementation looks like:
 
-        def create_special_user(model_class, username):  
-        
-            return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'})  
+    ```
+    def create_special_user(model_class, username):
+    
+        return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'}
 
-        #It will install 3 users (currently __auto_ban__ is not used in the system).  
+    #It will install 3 users (currently __auto_ban__ is not used in the system).
+    ```
   
 3. The service.DjailsService wrapper class allows you to:
 
