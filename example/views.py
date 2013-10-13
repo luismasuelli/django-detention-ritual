@@ -2,10 +2,10 @@
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from djails import decorators, service, signals
+from detention import decorators, service, signals
 from django.shortcuts import render_to_response
 from django.template import loader
-from djails.decorators import ifban_same
+from detention.decorators import ifban_same
 from django.dispatch import receiver
 from django.core import serializers
 

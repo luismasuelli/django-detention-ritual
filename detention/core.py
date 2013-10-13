@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 from django.core.exceptions import ValidationError
-from djails.models import ActiveBan, DeadBan, clean_duration, SPECIAL_USER_EXPIRER, SPECIAL_USER_CHECKER
+from detention.models import ActiveBan, DeadBan, clean_duration, SPECIAL_USER_EXPIRER, SPECIAL_USER_CHECKER
 from django.utils.timezone import now as tznow
 from django.contrib.auth import get_user_model
 __author__ = 'Luis'

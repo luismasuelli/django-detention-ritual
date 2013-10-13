@@ -1,4 +1,4 @@
-# Django settings for Djails project.
+# Django settings for django-detention project.
 import os
 
 ABSOLUTE_PATH = os.path.join(os.path.dirname(__file__), '..').replace('\\', '/')
@@ -103,10 +103,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'DjailsSampleProject.urls'
+ROOT_URLCONF = 'DetentionSampleProject.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'DjailsSampleProject.wsgi.application'
+WSGI_APPLICATION = 'DetentionSampleProject.wsgi.application'
 
 import os
 TEMPLATE_DIRS = (os.path.join(os.path.dirname(__file__), '..', 'templates').replace('\\','/'),)
@@ -121,7 +121,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
-    'djails',
+    'detention',
     'example'
 )
 

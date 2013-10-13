@@ -1,9 +1,9 @@
 from distutils.core import setup
 
 setup(
-    name='Djails',
+    name='django-detention',
     version='0.5.0',
-    packages=['djails'],
+    packages=['detention'],
     url='',
     license='GPL',
     author='Luis Masuelli',

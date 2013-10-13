@@ -1,16 +1,15 @@
-Djails
-======
+django-detention
+================
 
 An application designed to ban users. The application is plugged and gives the current User model a new feature: ban, unban, and check ban for users. Bans are accumulable and can be checked, reverted, forgiven, and expired.
 
 Instructions
 ============
 
-1.  Install "djails" in your project (i.e. add "djails" in the INSTALLED_APPS tuple).  
-  
-2.  If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username. The default implementation looks like:
+1. Install "djails" in your project (i.e. add "djails" in the INSTALLED_APPS tuple).
 
-    ```
+2. If you have a custom User model, you can specify (in DJAILS_USER_CREATOR setting) a custom function that gets-or-creates a user based on a username.
+The default implementation looks like:
     def create_special_user(model_class, username):
     
         return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'}
@@ -25,12 +24,16 @@ Instructions
   
     This example is a how-to for this app:
 
-    ```
+3. The service.DjailsService wrapper class allows you to:
+    * Check wether the user is banned or not.
+    * Ban another user.
+    * Forgive/Revert a ban.
+It's instantiated with the wrapped user as first parameter:
     klass = get_user_model()
     admin = klass.objects.get("someUser")
-    admin_wrapper = service.DjailsService(admin)
+    admin_wrapper = service.DetentionService(admin)
     client = klass.objects.get("anotherUser")
-    client_wrapper = service.DjailsService(client)
+    client_wrapper = service.DetentionService(client)
     new_ban = admin_wrapper.ban(client, "1d", "one-day sample ban")
     current_ban = client_wrapper.my_current_ban()
     assert new_ban == current_ban, "They must match"
@@ -78,13 +81,19 @@ These decorators, upon anonymous user or user being banned, process an alternati
     #   the 3rd param will be the name of the request attribute holding the wrapped user (for the on_banned view, and the original view; may be None if allowed anonymous and no user is logged in).
     #   the 4th param will be the name of the request attribute holding the wrapped view (for the on_banned view, and the on_anonymous view).
 
-    #finally, wrap views
+    \#and instantiate them as: my_ifban(allow_anonymous, ban_attr_name='current_ban', service_attr_name='service', view_attr_name='view')
+    \#   the 1st param will determine wether not being logged in or not "auth" installed will call the original view or the on_anonymous view.
+    \#   the 2nd param will be the name of the request attribute holding the current ban (for the on_banned view).
+    \#   the 3rd param will be the name of the request attribute holding the wrapped user (for the on_banned view, and the original view; may be None if allowed anonymous and no user is logged in).
+    \#   the 4th param will be the name of the request attribute holding the wrapped view (for the on_banned view, and the on_anonymous view).
+
+    \#finally, wrap views
     @my_ifban(True)
     def my_view(request, *args, **kwargs):
         #return a response here.
     ```
 
-5.  In djails.signals there are signals that react to user banning and ban termination.
+5. In djails.signals there are signals that react to user banning and ban termination.
 
     ```
     #in each case, the sender will be the banned user.

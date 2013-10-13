@@ -17,4 +17,4 @@ def create_special_user(model_class, username):
     Side note: yes, i know i could use a lambda but i wanted to doc this function.
     """
     return model_class.objects.get_or_create(username=username, defaults={'email': unicode(username) + u'@example.com'})
-user_creator = getattr(settings, 'DJAILS_USER_CREATOR', create_special_user)
+user_creator = getattr(settings, 'DETENTION_USER_CREATOR', create_special_user)

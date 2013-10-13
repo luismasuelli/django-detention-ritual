@@ -4,9 +4,6 @@ from django.shortcuts import redirect
 import views
 
 urlpatterns = patterns('',
-    # url(r'^$', 'DjailsSampleProject.views.home', name='home'),
-    # url(r'^djails/', include('example.urls')),
-    #FIXME put all test urls here.
     url('^banned/$', views.banned_view, name='banned-target'),
     url('^noauth/$', views.noauth_view, name='noauth-target'),
 

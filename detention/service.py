@@ -1,4 +1,4 @@
-from djails.models import ActiveBan
+from detention.models import ActiveBan
 import core
 import signals
 from django.contrib.auth import get_user_model
@@ -8,14 +8,14 @@ User = get_user_model()
 __author__ = 'Luis'
 
 
-class DjailsServiceError(Exception):
+class DetentionServiceError(Exception):
 
     def __init__(self, message, code):
-        super(DjailsServiceError, self).__init__(message)
+        super(DetentionServiceError, self).__init__(message)
         self.code = code
 
 
-class DjailsService(object):
+class DetentionService(object):
     """
     Abstraction of a user ban service. This abstraction - a kind of
     manager - can ban, revert, and forgive a user.
@@ -34,14 +34,14 @@ class DjailsService(object):
 
     @staticmethod
     def _is_user_banneable(user):
-        return not (DjailsService._is_staff(user) or DjailsService._is_superuser(user))
+        return not (DetentionService._is_staff(user) or DetentionService._is_superuser(user))
 
     def is_banneable(self):
         """
         Specifies wether this user is banneable or not.
         """
 
-        return DjailsService._is_user_banneable(self.__user)
+        return DetentionService._is_user_banneable(self.__user)
 
     def my_current_ban(self):
         """
@@ -61,14 +61,14 @@ class DjailsService(object):
         Checks if this user can terminate this ban.
         """
 
-        if not DjailsService._is_staff(self.__user):
-            raise DjailsServiceError(_(u"Banner user must be staff"), "STAFF_REQUIRED")
+        if not DetentionService._is_staff(self.__user):
+            raise DetentionServiceError(_(u"Banner user must be staff"), "STAFF_REQUIRED")
         if self.__user == target:
-            raise DjailsServiceError(_(u"Banner user and banned user must differ"), "CANNOT_BAN_SELF")
+            raise DetentionServiceError(_(u"Banner user and banned user must differ"), "CANNOT_BAN_SELF")
         if not isinstance(target, User):
-            raise DjailsServiceError(_(u"Ban target must be a user instance"), "USER_REQUIRED")
-        if not DjailsService._is_user_banneable(target):
-            raise DjailsServiceError(_(u"Staff and super users can't be banned"), "NOT_BANNEABLE")
+            raise DetentionServiceError(_(u"Ban target must be a user instance"), "USER_REQUIRED")
+        if not DetentionService._is_user_banneable(target):
+            raise DetentionServiceError(_(u"Staff and super users can't be banned"), "NOT_BANNEABLE")
 
     def ban(self, target, duration, reason):
         """
@@ -82,7 +82,7 @@ class DjailsService(object):
             signals.ban_applied.send_robust(target, new_ban=ban)
             return ban
         except Exception as e:
-            raise DjailsServiceError(_(u"An internal error occurred when creating a ban "
+            raise DetentionServiceError(_(u"An internal error occurred when creating a ban "
                                     u"- Contact the administrator if this still happens"),
                                     "UNKNOWN")
 
@@ -91,14 +91,14 @@ class DjailsService(object):
         Checks if this user can terminate this ban.
         """
 
-        if not DjailsService._is_staff(self.__user):
-            raise DjailsServiceError(_(u"Reverter user must be staff"), "STAFF_REQUIRED")
+        if not DetentionService._is_staff(self.__user):
+            raise DetentionServiceError(_(u"Reverter user must be staff"), "STAFF_REQUIRED")
         if not isinstance(ban, ActiveBan):
-            raise DjailsServiceError(_(u"Only active bans can be reverted or forgiven"), "ACTIVEBAN_REQUIRED")
-        if DjailsService._is_staff(ban.dictated_to) and not DjailsService._is_superuser(self.__user):
-            raise DjailsServiceError(_(u"Even when bans in staff have no effect, only a super user can remove them"), "SUPERUSER_REQUIRED")
-        if ban.dictated_by != self.__user and not DjailsService._is_superuser(self.__user):
-            raise DjailsServiceError(_(u"Only a super user can revert or forgive a ban it did not create"), "SUPERUSER_REQUIRED")
+            raise DetentionServiceError(_(u"Only active bans can be reverted or forgiven"), "ACTIVEBAN_REQUIRED")
+        if DetentionService._is_staff(ban.dictated_to) and not DetentionService._is_superuser(self.__user):
+            raise DetentionServiceError(_(u"Even when bans in staff have no effect, only a super user can remove them"), "SUPERUSER_REQUIRED")
+        if ban.dictated_by != self.__user and not DetentionService._is_superuser(self.__user):
+            raise DetentionServiceError(_(u"Only a super user can revert or forgive a ban it did not create"), "SUPERUSER_REQUIRED")
 
     def revert(self, ban, reason):
         """
@@ -111,7 +111,7 @@ class DjailsService(object):
             signals.ban_terminated.send_robust(ban.dictated_to, ban=ban)
             return ban
         except Exception as e:
-            raise DjailsServiceError(_(u"An internal error occurred when reverting a ban "
+            raise DetentionServiceError(_(u"An internal error occurred when reverting a ban "
                                      u"- Contact the administrator if this still happens"),
                                      "UNKNOWN")
 
@@ -126,7 +126,7 @@ class DjailsService(object):
             signals.ban_terminated.send_robust(ban.dictated_to, ban=ban)
             return ban
         except Exception as e:
-            raise DjailsServiceError(_(u"An internal error occurred when forgiving a ban "
+            raise DetentionServiceError(_(u"An internal error occurred when forgiving a ban "
                                      u"- Contact the administrator if this still happens"),
                                      "UNKNOWN")
 

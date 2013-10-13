@@ -55,7 +55,7 @@ class ifban(object):
             #the auth application is not installed or the user is not authenticated
             return False, None
         #get the service from the user and call it.
-        service_ = service.DjailsService(request.user)
+        service_ = service.DetentionService(request.user)
         return service_.my_current_ban(), service_
 
     def _dispatch(self, view, args, kwargs):
@@ -67,16 +67,14 @@ class ifban(object):
             4. User is banned: trigger on_banned.
         """
         result, service_ = self._get_ban(args[0])
+        setattr(args[0], self.service_attr_name, service_)
+        setattr(args[0], self.ban_attr_name, result)
+        setattr(args[0], self.view_attr_name, view)
         if result is False and not self.allow_anonymous:
-            setattr(args[0], self.view_attr_name, view)
             return self.on_anonymous(args[0], *args[1:], **kwargs)
         elif not result:
-            setattr(args[0], self.service_attr_name, service_)
             return view(*args, **kwargs)
         else:
-            setattr(args[0], self.service_attr_name, service_)
-            setattr(args[0], self.ban_attr_name, result)
-            setattr(args[0], self.view_attr_name, view)
             return self.on_banned(args[0], *args[1:], **kwargs)
 
     def __call__(self, view):
