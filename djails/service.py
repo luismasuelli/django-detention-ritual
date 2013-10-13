@@ -53,7 +53,7 @@ class DjailsService(object):
         else:
             current, terminated = core.check_ban_for(self.__user)
             if len(terminated):
-                signals.bans_expired.send_robust(self.__user, current=current, ban_list=terminated)
+                signals.bans_expired.send_robust(self.__user, current_ban=current, ban_list=terminated)
             return current
 
     def _check_can_ban(self, target):
