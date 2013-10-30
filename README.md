@@ -38,7 +38,7 @@ Instructions
     #admin_wrapper.revert works as well, with same parameters
     ```
 
-4.  You can wrap your views with class-based decorators that make your view behave differently depending on wether the current user in session is banned or not.  
+4.  You can wrap your views with class-based decorators that make your view behave differently depending on whether the current user in session is banned or not.  
 These decorators, upon anonymous user or user being banned, process an alternative flow to the wrapped view.  
 
     ```
@@ -99,13 +99,13 @@ These decorators, upon anonymous user or user being banned, process an alternati
         pass
     ```
 
-6.  Resource-specific banning: you can specify a custom resource to indicate the user is banned to operate in that resource.
-Whatever you specify as resource must either be any (SAVED, remember it: SAVED) model instance, or leave it blank defaulting to None (it is considered as just another possible value).
-Take an example: administrator a1 can ban a user c1 from accessing a room r1 for one day and "you suck" reason. Whatever you specify is business-specific and is up to you to define the meaning (even the None value).
-Based on the given example, syntax would be: DetentionService(a1).ban(c1, "1d", "you suck", r1) #or DetentionService(a1).ban(c1, "1d", "you suck", resource=r1).
-So, checking for DetentionService(c1).my_current_ban() would give no active ban (considering the only made ban was the previous one).
-And so, checking for DetentionService(c1).my_current_ban(r1) would give the recently created ban (assuming you call this in the scope of the duration).
-Assuming ds is a DetentionService instance, remember that ds.ban(c1, "1d", "you suck") and ds.my_current_ban() are the same as ds.ban(c1, "1d", "you suck", None) and ds.my_current_ban(None).
-**These resource-enabled features are not enabled in the ifban views**.
+6.  Resource-specific banning: you can specify a custom resource to indicate the user is banned to operate in that resource.  
+Whatever you specify as resource must either be any (SAVED, remember it: SAVED) model instance, or leave it blank defaulting to None (it is considered as just another possible value).  
+Take an example: administrator a1 can ban a user c1 from accessing a room r1 for one day and "you suck" reason. Whatever you specify is business-specific and is up to you to define the meaning (even the None value).  
+Based on the given example, syntax would be: DetentionService(a1).ban(c1, "1d", "you suck", r1) #or DetentionService(a1).ban(c1, "1d", "you suck", resource=r1).  
+So, checking for DetentionService(c1).my_current_ban() would give no active ban (considering the only made ban was the previous one).  
+And so, checking for DetentionService(c1).my_current_ban(r1) would give the recently created ban (assuming you call this in the scope of the duration).  
+Assuming ds is a DetentionService instance, remember that ds.ban(c1, "1d", "you suck") and ds.my_current_ban() are the same as ds.ban(c1, "1d", "you suck", None) and ds.my_current_ban(None).  
+**These resource-enabled features are not enabled in the ifban views**.  
 
 7.  For a more detailed example check the example application. I know this documentation is a crap but dude I hate doc-ing and 'm not in the best mood today, so deal with it.
