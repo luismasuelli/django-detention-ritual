@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='django-detention',
-    version='0.5.0',
+    version='0.6.0',
     packages=['detention'],
     url='',
     license='GPL',
@@ -15,5 +15,8 @@ setup(
         'Environment :: Plugins',
         'Framework :: Django',
         'Intended Audience :: Developers'
-    ]
+    ],
+    requires=[
+        'Django>=1.5.1'
+    ],
 )

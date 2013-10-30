@@ -106,5 +106,6 @@ Based on the given example, syntax would be: DetentionService(a1).ban(c1, "1d", 
 So, checking for DetentionService(c1).my_current_ban() would give no active ban (considering the only made ban was the previous one).
 And so, checking for DetentionService(c1).my_current_ban(r1) would give the recently created ban (assuming you call this in the scope of the duration).
 Assuming ds is a DetentionService instance, remember that ds.ban(c1, "1d", "you suck") and ds.my_current_ban() are the same as ds.ban(c1, "1d", "you suck", None) and ds.my_current_ban(None).
+**These resource-enabled features are not enabled in the ifban views**.
 
 7.  For a more detailed example check the example application. I know this documentation is a crap but dude I hate doc-ing and 'm not in the best mood today, so deal with it.
