@@ -1,3 +1,4 @@
+from django.db.models.base import Model
 from detention.models import ActiveBan
 import core
 import signals
@@ -43,15 +44,16 @@ class DetentionService(object):
 
         return DetentionService._is_user_banneable(self.__user)
 
-    def my_current_ban(self):
+    def my_current_ban(self, resource=None):
         """
-        Gets the current ban for this user, if any ban applied.
+        Gets the current ban for this user (for the current resource), if any ban applied.
         """
 
+        self._check_is_model(resource)
         if not self.is_banneable():
             return False
         else:
-            current, terminated = core.check_ban_for(self.__user)
+            current, terminated = core.check_ban_for(self.__user, resource)
             if len(terminated):
                 signals.bans_expired.send_robust(self.__user, current_ban=current, ban_list=terminated)
             return current
@@ -70,15 +72,21 @@ class DetentionService(object):
         if not DetentionService._is_user_banneable(target):
             raise DetentionServiceError(_(u"Staff and super users can't be banned"), "NOT_BANNEABLE")
 
-    def ban(self, target, duration, reason):
+    def _check_is_model(self, resource):
+        if not (resource is None or isinstance(resource, Model)):
+            raise DetentionServiceError(_(u"The resource must be either None or a Model instance"),
+                                        "INVALID_RESOURCE")
+
+    def ban(self, target, duration, reason, resource=None):
         """
-        Creates a ban from this user to target user.
+        Creates a ban from this user to target user (in a specific resource).
         """
 
+        self._check_is_model(resource)
         self._check_can_ban(target)
         core.clean_duration(duration)
         try:
-            ban = core.add_ban(self.__user, target, duration, reason)
+            ban = core.add_ban(self.__user, target, resource, duration, reason)
             signals.ban_applied.send_robust(target, new_ban=ban)
             return ban
         except Exception as e:

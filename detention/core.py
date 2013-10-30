@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from detention.models import ActiveBan, DeadBan, clean_duration, SPECIAL_USER_EXPIRER, SPECIAL_USER_CHECKER
 from django.utils.timezone import now as tznow
@@ -9,7 +10,7 @@ __author__ = 'Luis'
 User = get_user_model()
 
 
-def add_ban(banner, banned, duration, reason):
+def add_ban(banner, banned, resource, duration, reason):
     active_ban = ActiveBan()
     active_ban.dictation_on = tznow()
     active_ban.dictated_by = banner
@@ -17,6 +18,7 @@ def add_ban(banner, banned, duration, reason):
     active_ban.duration = duration
     active_ban.dictation_reason = reason
     active_ban.start_on = None
+    active_ban.resource = resource
     active_ban.save()
     return active_ban
 
@@ -113,10 +115,10 @@ def _special_bancheck_users():
             User.objects.get(username=SPECIAL_USER_CHECKER))
 
 
-def check_ban_for(banned):
+def check_ban_for(banned, resource=None):
     """
     Infinite loop - checks and expires bans to determine if
-        target user is currently banned or not.
+        target user is currently banned or not (in the specified resource).
 
     Since this' an on-demand check, we don't need libraries such
         as "Celery" or "Kronos" to depend of. Moreover: implementing
@@ -133,7 +135,12 @@ def check_ban_for(banned):
     _check_dictation_date = lambda b: _check_ban_dictation_on_before(b, now_, checker)
     _check_start_date = lambda b: _check_ban_start_on_before(b, now_, checker, terminated_bans)
     _check_duration = lambda b: _check_ban_duration(b, now_, checker, terminated_bans)
-    _active = lambda u: ActiveBan.objects.filter(dictated_to=u)
+    if resource is None:
+        _active = lambda u: ActiveBan.objects.filter(dictated_to=u, resource_type__isnull=True, resource_id__isnull=True)
+    else:
+        content_type = ContentType.objects.get_for_model(resource)
+        content_pkey = resource.pk
+        _active = lambda u: ActiveBan.objects.filter(dictated_to=u, resource_type=content_type, resource_id=content_pkey)
     _active_started = lambda u: _active(u).filter(start_on__isnull=False)
     _expected_end = lambda d, i: d + i if i is not None else None
     previous_start_on = None

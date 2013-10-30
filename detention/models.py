@@ -6,6 +6,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 
 
 User = get_user_model()
@@ -70,6 +72,9 @@ class BanData(models.Model):
     duration = models.CharField(null=False, max_length=255, validators=[clean_duration], verbose_name=_("Ban duration"))
     dictated_to = models.ForeignKey(User, related_name="+", null=False, editable=False, verbose_name=_("Ban target"))
     dictated_by = models.ForeignKey(User, related_name="+", null=False, editable=False,verbose_name=_("Ban dictator"))
+    resource_type = models.ForeignKey(ContentType, null=True)
+    resource_id = models.PositiveIntegerField(null=True)
+    resource = generic.GenericForeignKey('resource_type', 'resource_id')
 
     def copy_from(self, ban):
         self.dictation_on = ban.dictation_on
@@ -77,6 +82,7 @@ class BanData(models.Model):
         self.duration = ban.duration
         self.dictated_by = ban.dictated_by
         self.dictated_to = ban.dictated_to
+        self.resource = ban.resource
         return self
 
 
