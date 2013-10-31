@@ -17,6 +17,6 @@ setup(
         'Intended Audience :: Developers'
     ],
     requires=[
-        'Django>=1.5.1'
+        'Django (>=1.5.1)'
     ],
 )
